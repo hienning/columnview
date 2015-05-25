@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+
+	<link rel="stylesheet" href="css/bootstrap.min.css" media="all">
+	<link rel="stylesheet" href="css/bootstrap-theme.min.css" media="all">
+	<link rel="stylesheet" href="css/font-awesome.min.css" media="all">
+	<link rel="stylesheet" href="css/jquery-columnview.css" media="all">
+</head>
+<body>
+	
+
+
+<div class="container">
+    <h1 class="page-header">jquery.columnview.js</h1>
+
+    <div class="row">
+        <div class="col-xs-12">
+
+       		<div class="column-view">
+       		</div>
+
+       	</div>
+    </div>
+</div>
+
+
+<script src="js/jquery-2.1.4.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/jquery.columnview.js"></script>
+
+<script>
+
+(function($){
+
+
+// Categorized menu from Amazon.com
+var menu = [
+	{
+		id: '1', title: 'Books & Audible', items: [
+			{
+				id: '2', title: 'Books', items: [
+					{
+						id: '301', title: 'Arts & Photography', items: [
+							{ id: '402', title: 'Rembrandt' },
+							{ id: '403', title: 'Raphael' },
+							{ id: '404', title: 'Francis Bacon' },
+							{ id: '405', title: 'Andy Warhol' }
+				  		]
+					},
+					{ id: '302', title: 'Children\'s Books' },
+					{ id: '303', title: 'Cookbooks, Food & Wine' },
+					{ id: '304', title: 'Education & Teaching' },
+					{ id: '305', title: 'Science Fiction & Fantasy' }
+				]
+			},
+			{ id: '3', title: 'Kindle Books' },
+			{ id: '4', title: 'Children\'s Books' },
+			{ id: '5', title: 'Textbookds' }
+		]
+	},
+
+	{
+		id: '6', title: 'Movies, Music & Games', items: [
+			{ id: '7',  title: 'Music & TV' },
+			{ id: '8',  title: 'Blu-ray' },
+			{ id: '9',  title: 'CDs & Vinyl' },
+			{ id: '10', title: 'Muscial Instruments' }
+		]
+	},
+
+	{
+		id: '11', title: 'Electronics & Computers', items: [
+			{ id: '12', title: 'TV & Video' },
+			{
+				id: '13', title: 'Home Audio & Theater', items: [
+					{ id: '311', title: 'Sound Bar Speakers' },
+					{ id: '312', title: 'Radios' },
+					{ id: '313', title: 'Headphones Outlet' },
+					{ id: '314', title: 'Wireless & Multiroom' }
+				]
+			},
+			{ id: '14', title: 'Video Games' },
+			{ id: '15', title: 'Software' }
+		]
+	},
+
+	{
+		id: '16', title: 'Home, Garden & Tools', items: [
+			{ id: '17', title: 'Kitchen & Dining' },
+			{ id: '18', title: 'Bedding & Bath' },
+			{ id: '19', title: 'Fine Art' },
+			{ id: '20', title: 'Pet Supplies' }
+		]
+	},
+
+	{
+		id: '21', title: 'Toys, Kids & Baby', items: [
+			{ id: '22', title: 'Toys & Games' },
+			{ id: '23', title: 'Baby' },
+			{ id: '24', title: 'Video Games for Kids' }
+		]
+	},
+
+	{
+		id: '28', title: 'Clothing, Shoes & Jewelry', items: [
+			{ id: '29', title: 'Women' },
+			{ id: '30', title: 'Men' },
+			{ id: '31', title: 'Girls' },
+			{ id: '32', title: 'Boys' },
+			{ id: '33', title: 'Baby' },
+			{ id: '34', title: 'Luggage' }
+		]
+	}
+];
+
+
+
+function BuildMenu(data)
+{
+	var i, result = [];
+
+	for (i=0; i<data.length; i++) {
+		result.push({
+			id:         data[i].id,
+			title:      data[i].title,
+			expandable: ('undefined' !== typeof data[i].items)
+		});
+	}
+
+	return result;
+}
+
+
+
+function SearchSubMenu(id, items)
+{
+	var i, result = [];
+
+	for (i in items) {
+
+		if (items[i].id == id) {
+			if ('undefined' !== typeof items[i].items) {
+				result = items[i].items;
+			}
+			break;
+		} else {
+			if ('undefined' !== typeof items[i].items) {
+				result = SearchSubMenu(id, items[i].items);
+
+				if (result.length > 0) {
+					break;
+				}
+			}
+		}
+	}
+
+	return result;
+}
+
+
+
+function GetMenu(id)
+{
+	var result = [];
+
+	if ('undefined' === typeof id) {
+		result = menu;
+	} else {
+		result = SearchSubMenu(id, menu);
+	}
+
+	return BuildMenu(result);
+}
+
+
+
+$(document).ready(function(){
+
+    var $columnview = $('.column-view').columnview({
+		createOnTheFly: true,
+
+		columns: [
+			'Vocabulary', '1st Level', '2nd Level'
+		],
+
+		onItemClicked: function(item, col, e){
+			//$.getJSON('http://localhost/id', function(data){
+			//    fill the columns
+			//});
+
+			var o = [], m = GetMenu($(item).data('id'));
+
+			for (var i=0; i<m.length; i++) {
+				o.push( m[i].title + '(' + m[i].id + ')');
+			}
+
+			this.fillColumn(col+1, m);
+		},
+
+        onCreateItem: function(name, col, e) {
+            alert(name);
+        },
+
+        onRemoveItem: function(col, e) {
+            alert(col);
+        }
+	});
+
+    $columnview.columnview('fillColumn', 0, GetMenu());
+});
+
+
+})(jQuery);
+</script>
+
+</body>
+</html>
