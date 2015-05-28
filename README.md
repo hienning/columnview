@@ -4,6 +4,8 @@
 
 Copyright (c) 2015 - 2020 Hienning Lueng, licensed under the MIT license (http://opensource.org/licenses/mit-license.php)
 
+Feel free to contact me if you found any problem: hienjningz [at] gmail [dot] com
+
 I love the design of column view that comes with the OSX's Finder. This plugin for jQuery is to build such a view for me,
 or you, if you like it too.
 
