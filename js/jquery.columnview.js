@@ -42,9 +42,9 @@
 
 			this.container.find('table')
 				.on('click', 'th .remove', function(e){
-                    var col = $(this).parents('th').index();
-                    return _this.options.onRemoveItem.call(this, col, e);
-                })
+					var col = $(this).closest('th').index();
+					return _this.options.onRemoveItem.call(this, col, e);
+				})
 				.on('click', '.item', function(e){
 					return _this.onItemClicked(e, this);
 				})
@@ -54,18 +54,18 @@
 				.on('submit', 'tfoot .form-add', function(e){
 					e.preventDefault();
 
-                    var $name = $(this).find('.new-item-name');
+					var $name = $(this).find('.new-item-name');
 
-                    _this.options.onCreateItem.call(
-                        _this,
-                        $name.val(),
-                        $(this).parents('.column').index(),
-                        e
-                    );
+					_this.options.onCreateItem.call(
+						_this,
+						$name.val(),
+						$(this).closest('td').index(),
+						e
+					);
 
-                    $(this)[0].reset();
-                    $name.focus();
-                    return true;
+					$(this)[0].reset();
+					$name.focus();
+					return true;
 				});
 		},
 
@@ -237,7 +237,7 @@
 		 * @returns {boolean}
 		 */
 		onCheck: function(e, checkIcon) {
-			var i, $item = $(checkIcon).parents('.item');
+			var i, $item = $(checkIcon).closest('.item');
 
 			if ($item.hasClass(this.options.checkedClass)) {
 				if (this.selection.length <= 1) {
@@ -266,7 +266,7 @@
 				this.selection.push($item);
 			}
 
-			var col = $item.parents('.column').index();
+			var col = $item.closest('.column').index();
 
 			this.clearRightSide(col);
 			this._setRemoveCount(col);
@@ -289,7 +289,7 @@
 				return;
 			}
 
-			var col = $item.parents('.column').index();
+			var col = $item.closest('.column').index();
 
 			this.clearSelection(col);
 			this.clearRightSide(col);
