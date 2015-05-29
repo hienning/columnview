@@ -271,7 +271,7 @@
 			this.clearRightSide(col);
 			this._setRemoveCount(col);
 
-            this.options.onChecked.call(this, item, col, e);
+            this.options.onChecked.call(this, $item, col, e);
 			return false;
 		},
 
