@@ -32,7 +32,7 @@
 			this.options.url = options.url + '/';
 
 			this.container
-				.append('<table><thead><tr></tr></thead><tbody><tr></tr></tbody><tfoot><tr></tr></tfoot></table>');
+				.append('<ul class="columns"></ul>');
 
 			var i, _this = this;
 
@@ -40,9 +40,9 @@
 				this.addColumn(options.columns[i]);
 			}
 
-			this.container.find('table')
-				.on('click', 'th .remove', function(e){
-					var col = $(this).closest('th').index();
+			this.container.find('.columns')
+				.on('click', 'header .remove', function(e){
+					var col = $(this).closest('.column').index();
 					return _this.options.onRemoveItem.call(this, col, e);
 				})
 				.on('click', '.item', function(e){
@@ -51,7 +51,7 @@
 				.on('click', '.item .checkicon', function(e){
 					return _this.onCheck(e, this);
 				})
-				.on('submit', 'tfoot .form-add', function(e){
+				.on('submit', 'footer .form-add', function(e){
 					e.preventDefault();
 
 					var $name = $(this).find('.new-item-name');
@@ -59,7 +59,7 @@
 					_this.options.onCreateItem.call(
 						_this,
 						$name.val(),
-						$(this).closest('td').index(),
+						$(this).closest('.column').index(),
 						e
 					);
 
@@ -80,7 +80,7 @@
 				}
 			}
 
-			var $btn = this.container.find('table th:nth-child(' + (col+1) + ') .remove .caption')
+			var $btn = this.columns[col].find('header .remove .caption')
 						   .text(this.options.lang['btn-remove'].replace('{0}', ' ' + count + ' '))
 						   .parent();
 
@@ -90,40 +90,45 @@
 
 
 		/**
+		 * Toggle the form for item creation on/off.
+		 */
+		_hideCreationForm: function(start) {
+			if (start >= this.columns.length) {
+				return;
+			}
+
+			var i;
+
+			// Hide the form for create item
+			for (i=start; i<this.columns.length; i++) {
+				this.columns[i].removeClass('filled');
+			}
+		},
+
+
+
+
+		/**
 		 * Append a new column to the right most.
 		 *
 		 * @param caption	string	Caption for the column.
 		 */
 		addColumn: function(caption) {
-			var header = this.container.find('thead > tr'),
-				footer = this.container.find('tfoot > tr'),
-				body = this.container.find('tbody > tr');
-
-			var $opt = $(
-				'<th>' + caption + '<span class="opt">'
-				+ '<a class="btn btn-xs remove"><i class="fa fa-remove"></i> <span class="caption">[btn-remove]</span></a>'
-				+ '</span></th>'
-			);
-
-
-			$opt.find('.add .caption').text( this.options.lang['btn-add']).end()
-				.find('.remove .caption').text(this.options.lang['btn-remove'].replace('{0}', ''))
-				;
-
-			header.append($opt);
-
-			var $column = $('<td class="column"><ul></ul></td>');
-
-			body.append($column);
-
-			footer.append('<td><form class="form-add"><input type="hidden" name="parent"/>'
+			var $column = $(
+				'<li class="column"><header>' + caption + '<span class="opt">'
+				+ '<a class="btn btn-xs remove"><i class="fa fa-remove"></i> <span class="caption">'
+				+ this.options.lang['btn-remove'].replace('{0}', '')
+				+ '</span></a></span></header>'
+				+ '<ul class="items"></ul>'
+				+ '<footer><form class="form-add"><input type="hidden" name="parent"/>'
 				+ '<div class="col-xs-9"><input class="form-control new-item-name" placeholder="'
 				+ this.options.lang['input-new-column-name'] + '" /></div>'
 				+ '<div class="col-xs-3"><button class="btn btn-block"><i class="fa fa-plus"></i> '
 				+ this.options.lang['btn-add'] + '</button></div>'
-				+ '</form></td>'
+				+ '</form></footer></li>'
 			);
 
+			this.container.children('ul').append($column);
 			this.columns.push($column);
 		},
 
@@ -158,6 +163,8 @@
 					obj: data[i]
 				});
 			}
+
+			this.columns[col].addClass('filled');
 		},
 
 
@@ -175,9 +182,9 @@
 
 
 		/**
-		 * Clear/empty column(s) on the right side of geiven column.
+		 * Clear/empty column(s) on the right side of the given column.
 		 */
-		clearRightSide: function(current) {
+		_clearRightSide: function(current) {
 			if (0===this.selection.length || current<0 || current>=this.columns.length) {
 				return;
 			}
@@ -191,8 +198,9 @@
 			}
 
 			for (i=current+1; i<this.columns.length; i++) {
-				this.columns[i].find('ul').empty();
-				this.container.find('th:nth-child(' + (i+1) + ') .remove').css('visibility', 'hidden');
+				this.columns[i]
+					.find('.items').empty()
+					.prev().find('.remove').css('visibility', 'hidden');
 			}
 		},
 
@@ -268,7 +276,8 @@
 
 			var col = $item.closest('.column').index();
 
-			this.clearRightSide(col);
+			this._hideCreationForm(col+1);
+			this._clearRightSide(col);
 			this._setRemoveCount(col);
 
             this.options.onChecked.call(this, $item, col, e);
@@ -292,7 +301,7 @@
 			var col = $item.closest('.column').index();
 
 			this.clearSelection(col);
-			this.clearRightSide(col);
+			this._clearRightSide(col);
 
 			$item.parent().find('li.active').removeClass(this.options.activeClass).end().end()
 				 .addClass('checked active');
@@ -310,6 +319,7 @@
 				this.addColumn('New level');
 			}
 
+			this._hideCreationForm(col+2);
 			this.options.onItemClicked.call(this, item, col, e);
 		},
 
@@ -375,3 +385,4 @@
 	};
 
 })(jQuery);
+

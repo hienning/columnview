@@ -113,6 +113,10 @@ var menu = [
 			{ id: '33', title: 'Baby' },
 			{ id: '34', title: 'Luggage' }
 		]
+	},
+
+	{
+		id: '99', title: 'This item has no child', items: [ ]
 	}
 ];
 
@@ -126,7 +130,7 @@ function BuildMenu(data)
 		result.push({
 			id:         data[i].id,
 			title:      data[i].title,
-			expandable: ('undefined' !== typeof data[i].items)
+			expandable: ('undefined' !== typeof data[i].items && data[i].items.length)
 		});
 	}
 

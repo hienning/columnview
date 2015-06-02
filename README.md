@@ -25,6 +25,7 @@ to create/remove item(s).
 * jQuery 2 or greater. I created the demo against this version of jQuery. However, you may use a lower version if
   necessary, because I didn't use too many functionality of jQuery.
 * Bootstrap 3. I built this plugin on the top of it.
+* FontAwesome. I need this to create check-state for the item of column.
 
 
 ## Usage
