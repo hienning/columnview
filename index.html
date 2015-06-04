@@ -139,24 +139,20 @@ function BuildMenu(data)
 
 
 
-function SearchSubMenu(id, items)
+function SearchItem(id, items)
 {
-	var i, result = [];
+	var i, result = {};
 
 	for (i in items) {
 
 		if (items[i].id == id) {
-			if ('undefined' !== typeof items[i].items) {
-				result = items[i].items;
-			}
+			result = items[i];
 			break;
-		} else {
-			if ('undefined' !== typeof items[i].items) {
-				result = SearchSubMenu(id, items[i].items);
+		} else if ('undefined' !== typeof items[i].items) {
+			result = SearchItem(id, items[i].items);
 
-				if (result.length > 0) {
-					break;
-				}
+			if (! $.isEmptyObject(result) ) {
+				break;
 			}
 		}
 	}
@@ -173,12 +169,41 @@ function GetMenu(id)
 	if ('undefined' === typeof id) {
 		result = menu;
 	} else {
-		result = SearchSubMenu(id, menu);
+		var item = SearchItem(id, menu);
+
+		if (typeof item.items !== 'undefined') {
+			result = item.items;
+		}
 	}
 
 	return BuildMenu(result);
 }
 
+
+
+function CreateItem(name, parent)
+{
+	var item = SearchItem(parent, menu);
+
+	if ('undefined' === typeof item.items) {
+		item['items'] = [];
+	}
+
+	var item_id = new_item_id++;
+	var new_item = {
+		id: item_id,
+		title: name + ' (new)'
+	};
+
+	item['items'].push(new_item);
+
+	return new_item;
+}
+
+
+
+
+var new_item_id = 999;
 
 
 $(document).ready(function(){
@@ -206,6 +231,21 @@ $(document).ready(function(){
 
         onCreateItem: function(name, col, e) {
             alert('Column: ' + col + ', Name: ' + name);
+
+			var parent = 0;
+
+			if (col-1 >= 0) {
+				for (var i=0; i<this.selection.length; i++) {
+					var data = this.selection[i].data();
+
+					if (data.col == col-1) {
+						parent = data.id;
+					}
+				}
+			}
+
+			this.appendItem(col, [ CreateItem(name, parent) ]);
+
         },
 
         onRemoveItem: function(col, e) {

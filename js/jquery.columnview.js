@@ -145,18 +145,35 @@
 				return;
 			}
 
-			var src = this.columns[col].find('ul');
+			this.columns[col].children('ul').empty();
 
-			src.empty();
+			this.appendItem(col, data);
+		},
+
+
+
+		/**
+		 * Append item to a given column.
+		 *
+		 * @param col		The column to be filled.
+		 * @param data
+		 */
+		appendItem: function(col, data) {
+			if (col >= this.columns.length) {
+				return;
+			}
+
+			var src = this.columns[col].children('ul'),
+				empty = (0 === src.children('.item').length);
 
 			for (var i=0; i<data.length; i++) {
-				var $item = $('<li class="item" data-id="' + data[i].id + '">'
-                            + '<div class="caption">' + data[i].title + '</div>'
-							+ '<div class="checkicon">'
-							+ '<i class="fa fa-square-o"></i><i class="fa fa-check-square-o"></i>&nbsp;'
-							+ '</div>'
-							+ (data[i].expandable ? '<i class="fa fa-chevron-right">' : '')
-							+ '</i></li>');
+				var $item = $(
+					'<li class="item' + (data[i].expandable ? ' expandable' : '') + '" data-id="' + data[i].id + '">'
+					+ '<div class="caption">' + data[i].title + '</div>'
+					+ '<div class="checkicon">'
+					+ '<i class="fa fa-square-o"></i><i class="fa fa-check-square-o"></i>&nbsp;'
+					+ '</div><i class="fa fa-chevron-right"></i></li>'
+				);
 
 				$item.appendTo(src).data({
 					col: col,
@@ -165,7 +182,18 @@
 			}
 
 			this.columns[col].addClass('filled');
+
+			if (data.length && empty && col-1 >= 0) {
+				for (var i=0; i<this.selection.length; i++) {
+					var data = this.selection[i].data();
+
+					if (data.col == col-1) {
+						this.selection[i].addClass('expandable');
+					}
+				}
+			}
 		},
+
 
 
         /**

@@ -82,6 +82,7 @@
 		}
 
 		& .fa-chevron-right {
+			visibility: hidden;
 			position: absolute;
 			right: 1em;
 			top: 50%;
@@ -153,6 +154,10 @@
 		&.active {
 			color: #fff;
 			background-color: darken(@light-blue , 6%)!important;
+		}
+
+		&.expandable .fa-chevron-right {
+			visibility: visible;
 		}
 	}
 }
