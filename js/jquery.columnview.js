@@ -320,6 +320,11 @@
 			}
 
 			this._hideCreationForm(col+2);
+
+			if (col+1 < this.columns.length) {
+				this.columns[col+1].addClass('filled');
+			}
+
 			this.options.onItemClicked.call(this, item, col, e);
 		},
 
