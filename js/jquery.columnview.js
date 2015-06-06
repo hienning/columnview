@@ -43,7 +43,21 @@
 			this.container.find('.columns')
 				.on('click', 'header .remove', function(e){
 					var col = $(this).closest('.column').index();
-					return _this.options.onRemoveItem.call(this, col, e);
+
+					if (! _this.options.onRemoveItem.call(_this, col, e)) {
+						return true;
+					}
+
+					_this._hideCreationForm(col+1);
+					_this._clearRightSide(col);
+					_this._setRemoveCount(col);
+
+					if (col > 0 && 0 === _this.columns[col].find('.item').length) {
+						_this.columns[col-1].find('.' + _this.options.activeClass)
+							.removeClass(_this.options.expandableClass);
+					}
+
+					return true;
 				})
 				.on('click', '.item', function(e){
 					return _this.onItemClicked(e, this);
@@ -168,7 +182,9 @@
 
 			for (var i=0; i<data.length; i++) {
 				var $item = $(
-					'<li class="item' + (data[i].expandable ? ' expandable' : '') + '" data-id="' + data[i].id + '">'
+					'<li class="item'
+					+ (data[i].expandable ? ' ' + this.options.expandableClass : '')
+					+ '" data-id="' + data[i].id + '">'
 					+ '<div class="caption">' + data[i].title + '</div>'
 					+ '<div class="checkicon">'
 					+ '<i class="fa fa-square-o"></i><i class="fa fa-check-square-o"></i>&nbsp;'
@@ -188,7 +204,7 @@
 					var data = this.selection[i].data();
 
 					if (data.col == col-1) {
-						this.selection[i].addClass('expandable');
+						this.selection[i].addClass(this.options.expandableClass);
 					}
 				}
 			}
@@ -408,13 +424,14 @@
 
 		// Callbacks
 		onItemClicked: function(item, col, e) { return true; },
-        onChecked: function(item, col, e) { return true; },
-        onCreateItem: function(name, col, e) { return true; },
-        onRemoveItem: function(col, e) { return true; },
+		onChecked: function(item, col, e) { return true; },
+		onCreateItem: function(name, col, e) { return true; },
+		onRemoveItem: function(col, e) { return true; },
 
-		checkedClass: 'checked',
-		tableClass: 'columns',
-		activeClass: 'active'
+		checkedClass:    'checked',
+		tableClass:      'columns',
+		activeClass:     'active',
+		expandableClass: 'expandable'
 	};
 
 })(jQuery);

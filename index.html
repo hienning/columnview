@@ -202,6 +202,36 @@ function CreateItem(name, parent)
 
 
 
+function DoRemoveItem(id, items)
+{
+	var i, result = {};
+
+	for (i in items) {
+
+		if (items[i].id == id) {
+			result = items[i];
+			items.splice(i, 1);
+			break;
+		} else if ('undefined' !== typeof items[i].items) {
+			result = DoRemoveItem(id, items[i].items);
+
+			if (! $.isEmptyObject(result) ) {
+				break;
+			}
+		}
+	}
+
+	return result;
+}
+
+
+function RemoveItem(id)
+{
+	return DoRemoveItem(id, menu);
+}
+
+
+
 
 var new_item_id = 999;
 
@@ -249,7 +279,33 @@ $(document).ready(function(){
         },
 
         onRemoveItem: function(col, e) {
-            alert('Column: ' + col);
+			var i, selection = [];
+
+			for (i=0; i<this.selection.length; i++) {
+				var data = this.selection[i].data();
+
+				if (col === data.col) {
+					selection.push(this.selection[i]);
+				}
+			}
+
+			if (!selection.length) {
+				return false;
+			}
+
+			var toRemove = confirm('Do you really want to remove selected ' + selection.length +  ' items?');
+
+			if (!toRemove) {
+				return false;
+			}
+
+			for (i=0; i<selection.length; i++) {
+				var data = selection[i].data();
+				RemoveItem(data.id);
+				selection[i].remove();
+			}
+
+			return true; // Return true if you already removed selected item(s)
         }
 	});
 
@@ -262,3 +318,4 @@ $(document).ready(function(){
 
 </body>
 </html>
+
