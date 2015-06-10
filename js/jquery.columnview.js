@@ -28,6 +28,10 @@
 
 	Plugin.prototype = {
 
+		/*--------------------------------------------------------+
+		|  Private Methods                                        |
+		+--------------------------------------------------------*/
+
 		_init: function(options) {
 			this.options.url = options.url + '/';
 
@@ -59,12 +63,15 @@
 
 					return true;
 				})
+
 				.on('click', '.item', function(e){
 					return _this.onItemClicked(e, this);
 				})
+
 				.on('click', '.item .checkicon', function(e){
 					return _this.onCheck(e, this);
 				})
+
 				.on('submit', 'footer .form-add', function(e){
 					e.preventDefault();
 
@@ -86,19 +93,13 @@
 
 
 		_setRemoveCount: function(col) {
-			var i, count = 0;
-
-			for (i=0; i<this.selection.length; i++) {
-				if (this.selection[i].data().col === col) {
-					count++;
-				}
-			}
+			var i, selection = this.columns[col].data('selection');
 
 			var $btn = this.columns[col].find('header .remove .caption')
-						   .text(this.options.lang['btn-remove'].replace('{0}', ' ' + count + ' '))
+						   .text(this.options.lang['btn-remove'].replace('{0}', ' ' + selection.length + ' '))
 						   .parent();
 
-			$btn.css('visibility', (count <= 0 ? 'hidden' : 'visible'));
+			$btn.css('visibility', (selection.length <= 0 ? 'hidden' : 'visible'));
 		},
 
 
@@ -121,11 +122,59 @@
 
 
 
+		/**
+		 * Push item to the global selection and column local selection.
+		 *
+		 * @param $item jQuery     The element to push.
+		 * @param col   integer    The index of column to hold the item.
+		 */
+		_pushSelection: function($item, col) {
+			this.selection.push($item);
+
+			var selection_in_col = this.columns[col].data('selection');
+
+			selection_in_col.push($item);
+
+			this.columns[col].data('selection', selection_in_col);
+		},
+
+
+
+
+		/**
+		 * Clear/empty column(s) on the right side of the given column.
+		 */
+		_clearRightSide: function(current) {
+			if (0===this.selection.length || current<0 || current>=this.columns.length) {
+				return;
+			}
+
+			var i;
+
+			for (i=this.selection.length-1; i>=0; i--) {
+				if (this.selection[i].data().col > current) {
+					this.selection.splice(i, 1);
+				}
+			}
+
+			for (i=current+1; i<this.columns.length; i++) {
+				this.columns[i]
+					.find('.items').empty()
+					.prev().find('.remove').css('visibility', 'hidden');
+			}
+		},
+
+
+
+		/*--------------------------------------------------------+
+		|  Public Methods                                         |
+		+--------------------------------------------------------*/
+
 
 		/**
 		 * Append a new column to the right most.
 		 *
-		 * @param caption	string	Caption for the column.
+		 * @param caption String    Caption for the column.
 		 */
 		addColumn: function(caption) {
 			var $column = $(
@@ -140,7 +189,7 @@
 				+ '<div class="col-xs-3"><button class="btn btn-block"><i class="fa fa-plus"></i> '
 				+ this.options.lang['btn-add'] + '</button></div>'
 				+ '</form></footer></li>'
-			);
+			).data('selection', []);
 
 			this.container.children('ul').append($column);
 			this.columns.push($column);
@@ -151,8 +200,8 @@
 		/**
 		 * Fill a specified column with data.
 		 *
-		 * @param col		The column to be filled.
-		 * @param data
+		 * @param col     The column to be filled.
+		 * @param data    A array of item(s) to be filled, see appendItem for the format.
 		 */
 		fillColumn: function(col, data) {
 			if (col >= this.columns.length) {
@@ -170,7 +219,13 @@
 		 * Append item to a given column.
 		 *
 		 * @param col		The column to be filled.
-		 * @param data
+		 * @param data    A array of item(s) to be filled, in following format:
+		 *                [
+		 *                    { id: '1',   title: 'Item 1', expandable: true },
+		 *                    { id: '2',   title: 'Item 2', expandable: false },
+		 *                    ...
+		 *                    { id: 'N',   title: 'Item N', expandable: false }
+		 *                ]
 		 */
 		appendItem: function(col, data) {
 			if (col >= this.columns.length) {
@@ -212,48 +267,23 @@
 
 
 
-        /**
-         * Retrieve current selection.
-         */
-        getSelection: function(col) {
-            if ('undefined' === typeof col) {
-
-            }
-
-
-        },
-
-
-
 		/**
-		 * Clear/empty column(s) on the right side of the given column.
+		 * Retrieve current selection.
 		 */
-		_clearRightSide: function(current) {
-			if (0===this.selection.length || current<0 || current>=this.columns.length) {
-				return;
+		getSelection: function(col) {
+			if ('undefined' === typeof col) {
+				return this.selection;
 			}
 
-			var i;
-
-			for (i=this.selection.length-1; i>=0; i--) {
-				if (this.selection[i].data().col > current) {
-					this.selection.splice(i, 1);
-				}
-			}
-
-			for (i=current+1; i<this.columns.length; i++) {
-				this.columns[i]
-					.find('.items').empty()
-					.prev().find('.remove').css('visibility', 'hidden');
-			}
+			return this.columns[col].data('selection');
 		},
 
 
 
 		/**
-		 * Clear selection.
+		 * Clear the selection.
 		 *
-		 * @param col Column index to be cleared. Leave it blank to clear all the selection.
+		 * @param col    Column index to be cleared. Leave it blank to clear all the selection.
 		 */
 		clearSelection: function(col) {
 			if (0 === this.selection.length) {
@@ -268,6 +298,12 @@
 				}
 
 				this.selection.length = 0;
+
+				for (i=0; i<this.columns.length; i++) {
+					this.columns[i].data('selection', []);
+				}
+
+				this._clearRightSide(0);
 			} else {
 				for (i=this.selection.length-1; i>=0; i--) {
 					if (this.selection[i].data().col === col) {
@@ -277,25 +313,82 @@
 				}
 
 				this.columns[col].data('selection', []);
+				this._clearRightSide(col);
 			}
 		},
 
 
 
 		/**
+		 * Remove selected item(s) in the given column.
 		 *
-		 * @param e
-		 * @param checkIcon
+		 * @param col    Column index to be cleared. Leave it blank to remove all the selections.
+		 */
+		removeSelection: function(col) {
+			if (0 === this.selection.length) {
+				return;
+			}
+
+			var i;
+
+			if ('undefined' === typeof col) {
+				for (i=this.selection.length-1; i>=0; i--) {
+					this.selection[i].remove();
+				}
+
+				this.selection.length = 0;
+
+				for (i=0; i<this.columns.length; i++) {
+					this.columns[i].data('selection', []);
+				}
+
+				this._clearRightSide(0);
+			} else {
+				for (i=this.selection.length-1; i>=0; i--) {
+					if (this.selection[i].data().col === col) {
+						this.selection[i].remove();
+						this.selection.splice(i, 1);
+					}
+				}
+
+				this.columns[col].data('selection', []);
+				this._setRemoveCount(col);
+
+				if (col > 0 && 0 === this.columns[col].find('.item').length) {
+					this.columns[col-1].find('.' + this.options.activeClass)
+						.removeClass(this.options.expandableClass);
+				}
+
+				this._clearRightSide(col);
+			}
+		},
+
+
+
+		/*--------------------------------------------------------+
+		|  Event handlers                                         |
+		+--------------------------------------------------------*/
+
+
+		/**
+		 * Trigered when click on the checkbox of the item.
+		 *
+		 * @param e				Event object.
+		 * @param checkIcon		Element that contains the checkbox.
 		 * @returns {boolean}
 		 */
 		onCheck: function(e, checkIcon) {
 			var i, $item = $(checkIcon).closest('.item');
+			var col = $item.closest('.column').index();
 
 			if ($item.hasClass(this.options.checkedClass)) {
+				// Uncheck the item
+
 				if (this.selection.length <= 1) {
 					return false;
 				}
 
+				// Traverse the selection and select an item that next to the current one
 				for (i=0; i<this.selection.length; i++) {
 					if (this.selection[i].data().obj !== $item.data().obj) {
 						$item.removeClass(this.options.activeClass);
@@ -306,32 +399,44 @@
 
 				$item.removeClass(this.options.checkedClass);
 
-				// Select the last item
+				// Remove current item from the selection
 				for (i=this.selection.length-1; i>=0; i--) {
 					if ($item.data().obj === this.selection[i].data().obj) {
 						this.selection.splice(i, 1);
 						break;
 					}
 				}
+
+				var selection_in_col = this.columns[col].data('selection');
+
+				for (i=selection_in_col.length-1; i>=0; i--) {
+					if ($item.data().obj === selection_in_col[i].data().obj) {
+						selection_in_col.splice(i, 1);
+						break;
+					}
+				}
+
+				this.columns[col].data('selection', selection_in_col);
 			} else {
+				// Check the item
 				$item.addClass(this.options.checkedClass);
-				this.selection.push($item);
+				this._pushSelection($item, col);
 			}
 
-			var col = $item.closest('.column').index();
 
 			this._hideCreationForm(col+1);
 			this._clearRightSide(col);
 			this._setRemoveCount(col);
 
-            this.options.onChecked.call(this, $item, col, e);
+			this.options.onChecked.call(this, $item, col, e);
 			return false;
 		},
 
 
 
 		/**
-		 * 
+		 * Trigered when click on an item.
+		 *
 		 * @param e      Event
 		 * @param item   Current item.
 		 */
@@ -345,12 +450,11 @@
 			var col = $item.closest('.column').index();
 
 			this.clearSelection(col);
-			this._clearRightSide(col);
 
 			$item.parent().find('li.active').removeClass(this.options.activeClass).end().end()
 				 .addClass('checked active');
 
-			this.selection.push($item);
+			this._pushSelection($item, col);
 			this._setRemoveCount(col);
 
 			var data = $item.data().obj;
@@ -370,17 +474,6 @@
 			}
 
 			this.options.onItemClicked.call(this, item, col, e);
-		},
-
-
-
-		onCreateItem: function(e, item) {
-			e.preventDefault();
-
-			$.post($(this).attr('action'), $(this).serialize(), function(data){
-				alert(data);
-				$(this).reset();
-			});
 		}
 	};
 
@@ -424,9 +517,9 @@
 
 		// Callbacks
 		onItemClicked: function(item, col, e) { return true; },
-		onChecked: function(item, col, e) { return true; },
-		onCreateItem: function(name, col, e) { return true; },
-		onRemoveItem: function(col, e) { return true; },
+		onChecked:     function(item, col, e) { return true; },
+		onCreateItem:  function(name, col, e) { return true; },
+		onRemoveItem:  function(col, e) { return true; },
 
 		checkedClass:    'checked',
 		tableClass:      'columns',

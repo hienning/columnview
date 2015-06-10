@@ -279,15 +279,7 @@ $(document).ready(function(){
         },
 
         onRemoveItem: function(col, e) {
-			var i, selection = [];
-
-			for (i=0; i<this.selection.length; i++) {
-				var data = this.selection[i].data();
-
-				if (col === data.col) {
-					selection.push(this.selection[i]);
-				}
-			}
+			var i, selection = this.getSelection(col);
 
 			if (!selection.length) {
 				return false;
