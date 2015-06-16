@@ -20,6 +20,7 @@
 		this.data = [];
 		this.container = $(selector);
 		this.columns = [];
+		this.compacted = this.container.hasClass('column-view-compact');
 
 		this._init(options);
 	}
@@ -35,14 +36,24 @@
 		_init: function(options) {
 			this.options.url = options.url + '/';
 
-			this.container
-				.append('<ul class="columns"></ul>');
+			if (this.compacted) {
+                this.container.append(
+                    '<div class="path"><ul></ul></div>'
+                );
+			}
+
+            this.container
+                .append('<div class="columns"><ul></ul></div>');
 
 			var i, _this = this;
 
-			for (i=0; i<options.columns.length; i++) {
-				this.addColumn(options.columns[i]);
-			}
+            if (options.columns.length) {
+                for (i=0; i<options.columns.length; i++) {
+                    this.addColumn(options.columns[i]);
+                }
+
+                this.columns[0].addClass('active');
+            }
 
 			this.container.find('.columns')
 				.on('click', 'header .remove', function(e){
@@ -88,6 +99,22 @@
 					$name.focus();
 					return true;
 				});
+
+
+            this.container.children('.path').on('click', 'li', function(e){
+                var index = $(this).index(),
+                    $items = $(this).parent().children();
+
+                _this.container.find('.active').removeClass('active');
+                _this.columns[index].addClass('active');
+                _this._clearRightSide(index);
+
+                for (i=$(this).index(); i<$items.length; i++) {
+                    $($items[i]).remove();
+                }
+
+                console.debug(_this.selection);
+            });
 		},
 
 
@@ -178,7 +205,9 @@
 		 */
 		addColumn: function(caption) {
 			var $column = $(
-				'<li class="column"><header>' + caption + '<span class="opt">'
+				'<li class="column"><header>'
+                + (this.compacted ? '<i class="fa fa-chevron-down"></i> ' : '')
+                + caption + '<span class="opt">'
 				+ '<a class="btn btn-xs remove"><i class="fa fa-remove"></i> <span class="caption">'
 				+ this.options.lang['btn-remove'].replace('{0}', '')
 				+ '</span></a></span></header>'
@@ -191,7 +220,7 @@
 				+ '</form></footer></li>'
 			).data('selection', []);
 
-			this.container.children('ul').append($column);
+			this.container.find('.columns > ul').append($column);
 			this.columns.push($column);
 		},
 
@@ -371,7 +400,7 @@
 
 
 		/**
-		 * Trigered when click on the checkbox of the item.
+		 * Triggered when click on the checkbox of the item.
 		 *
 		 * @param e				Event object.
 		 * @param checkIcon		Element that contains the checkbox.
@@ -457,12 +486,9 @@
 			this._pushSelection($item, col);
 			this._setRemoveCount(col);
 
-			var data = $item.data().obj;
-
 			if (this.options.createOnTheFly
 				&& col === this.columns.length-1
-				&& typeof data.expandable !== 'undefined'
-				&& data.expandable)
+				)
 			{
 				this.addColumn('New level');
 			}
@@ -472,6 +498,16 @@
 			if (col+1 < this.columns.length) {
 				this.columns[col+1].addClass('filled');
 			}
+
+            if (this.compacted &&  col+1 < this.columns.length) {
+                this.columns[col+1].addClass('active');
+
+                this.columns[col].removeClass('active');
+
+                $('<li><i class="fa fa-chevron-right"></i> ' + $item.children('.caption').text() + '</li>')
+                    .appendTo(this.container.find('.path > ul'))
+                    .data('item', $item);
+            }
 
 			this.options.onItemClicked.call(this, item, col, e);
 		}

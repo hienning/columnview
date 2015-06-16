@@ -1,1 +1,185 @@
-.column-view ul{padding-left:0}.column-view .columns{display:table;width:100%;border-collapse:collapse}.column-view .column{display:table-cell;border:1px solid #ccc;border-collapse:collapse;position:relative}.column-view .column.filled .form-add{visibility:visible}.column-view header{font-weight:bold;padding:.5em;background-color:#f2f2f2;border-bottom:2px solid #ccc}.column-view header .opt{float:right}.column-view header .opt .remove{visibility:hidden}.column-view footer{position:absolute;left:0;bottom:0;width:100%;border-top:1px solid #ccc}.column-view footer .form-add{overflow:hidden;visibility:hidden;padding-top:15px;padding-bottom:15px}.column-view .items{margin-bottom:64px}.column-view .item{cursor:default;list-style:none;margin:0;line-height:3em;height:3em;position:relative}.column-view .item .caption{position:absolute;padding-left:2em;padding-right:2em;width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.column-view .item .fa-chevron-right{visibility:hidden;position:absolute;right:1em;top:50%;margin-top:-1em;line-height:2em}.column-view .item .checkicon{position:absolute;text-align:center;display:inline-block;width:2em}.column-view .item .checkicon .fa-check-square-o{display:none}.column-view .item .checkicon .fa-square-o{visibility:hidden}.column-view .item:hover{color:#fff;opacity:.65;filter:alpha(opacity=65);background-color:#3c8dbc}.column-view .item:hover .checkicon .fa-check-square-o{display:none}.column-view .item:hover .checkicon .fa-square-o{visibility:visible;display:inline}.column-view .item.checked{color:#fff;background-color:#3c8dbc;font-weight:bold}.column-view .item.checked .checkicon .fa-check-square-o{visibility:visible;display:inline}.column-view .item.checked .checkicon .fa-square-o{display:none}.column-view .item.checked:hover{background-color:#357ca5 !important}.column-view .item.checked:hover .checkicon .fa-check-square-o{visibility:visible;display:inline}.column-view .item.checked:hover .checkicon .fa-square-o{display:none}.column-view .item.active{color:#fff;background-color:#357ca5 !important}.column-view .item.expandable .fa-chevron-right{visibility:visible}/*# sourceMappingURL=jquery-columnview.map */
+.column-view ul {
+  padding-left: 0;
+}
+.column-view .columns > ul {
+  display: table;
+  width: 100%;
+  border-collapse: collapse;
+}
+.column-view .column {
+  display: table-cell;
+  border: 1px solid #ccc;
+  border-collapse: collapse;
+  position: relative;
+}
+.column-view .column.filled .form-add {
+  visibility: visible;
+}
+.column-view header {
+  font-weight: bold;
+  padding: 0.5em;
+  background-color: #f2f2f2;
+  border-bottom: 2px solid #ccc;
+}
+.column-view header .opt {
+  float: right;
+}
+.column-view header .opt .remove {
+  visibility: hidden;
+}
+.column-view footer {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  border-top: 1px solid #ccc;
+}
+.column-view footer .form-add {
+  overflow: hidden;
+  visibility: hidden;
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+.column-view .items {
+  margin-bottom: 64px;
+}
+.column-view .item {
+  cursor: default;
+  list-style: none;
+  margin: 0;
+  line-height: 3em;
+  height: 3em;
+  position: relative;
+}
+.column-view .item .caption {
+  position: absolute;
+  padding-left: 2em;
+  padding-right: 2em;
+  width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.column-view .item .fa-chevron-right {
+  visibility: hidden;
+  position: absolute;
+  right: 1em;
+  top: 50%;
+  margin-top: -1em;
+  line-height: 2em;
+}
+.column-view .item .checkicon {
+  position: absolute;
+  text-align: center;
+  display: inline-block;
+  width: 2em;
+}
+.column-view .item .checkicon .fa-check-square-o {
+  display: none;
+}
+.column-view .item .checkicon .fa-square-o {
+  visibility: hidden;
+}
+.column-view .item:hover {
+  color: #fff;
+  opacity: 0.65;
+  filter: alpha(opacity=65);
+  background-color: #3c8dbc;
+}
+.column-view .item:hover .checkicon .fa-check-square-o {
+  display: none;
+}
+.column-view .item:hover .checkicon .fa-square-o {
+  visibility: visible;
+  display: inline;
+}
+.column-view .item.checked {
+  color: #fff;
+  background-color: #3c8dbc;
+  font-weight: bold;
+}
+.column-view .item.checked .checkicon .fa-check-square-o {
+  visibility: visible;
+  display: inline;
+}
+.column-view .item.checked .checkicon .fa-square-o {
+  display: none;
+}
+.column-view .item.checked:hover {
+  background-color: #357ca5 !important;
+}
+.column-view .item.checked:hover .checkicon .fa-check-square-o {
+  visibility: visible;
+  display: inline;
+}
+.column-view .item.checked:hover .checkicon .fa-square-o {
+  display: none;
+}
+.column-view .item.active {
+  color: #fff;
+  background-color: #357ca5 !important;
+}
+.column-view .item.expandable .fa-chevron-right {
+  visibility: visible;
+}
+.column-view-compact .path ul {
+  cursor: pointer;
+  margin: 0;
+  list-style: none;
+}
+.column-view-compact .path li {
+  border-width: 1px 1px 0 1px;
+  border-style: solid;
+  border-color: #ccc;
+  font-weight: bold;
+  padding: 0.5em;
+  background-color: #e2e2e2;
+}
+.column-view-compact .path li:hover {
+  color: #357ca5 !important;
+}
+.column-view-compact .path li:nth-child(2) .fa-chevron-right {
+  margin-right: 1em;
+}
+.column-view-compact .path li:nth-child(3) .fa-chevron-right {
+  margin-right: 2em;
+}
+.column-view-compact .path li:nth-child(4) .fa-chevron-right {
+  margin-right: 3em;
+}
+.column-view-compact .path li:nth-child(5) .fa-chevron-right {
+  margin-right: 4em;
+}
+.column-view-compact .path li:nth-child(6) .fa-chevron-right {
+  margin-right: 5em;
+}
+.column-view-compact .path li:nth-child(7) .fa-chevron-right {
+  margin-right: 6em;
+}
+.column-view-compact .path li:nth-child(8) .fa-chevron-right {
+  margin-right: 7em;
+}
+.column-view-compact .path li:nth-child(9) .fa-chevron-right {
+  margin-right: 8em;
+}
+.column-view-compact .path li:nth-child(10) .fa-chevron-right {
+  margin-right: 9em;
+}
+.column-view-compact .columns {
+  display: block;
+  border: 1px solid #357ca5 !important;
+}
+.column-view-compact .column {
+  display: none;
+  left: 0;
+  width: 100%;
+  border-width: 0;
+  overflow: hidden;
+}
+.column-view-compact .column header {
+  color: #357ca5 !important;
+}
+.column-view-compact .column.active {
+  display: block;
+}
+/*# sourceMappingURL=jquery-columnview.map */

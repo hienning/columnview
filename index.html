@@ -10,7 +10,7 @@
 	<link rel="stylesheet" href="css/jquery-columnview.css" media="all">
 </head>
 <body>
-	
+
 
 
 <div class="container">
@@ -24,6 +24,17 @@
 
        	</div>
     </div>
+
+
+    <div class="row">
+        <div class="col-xs-12">
+
+       		<div id="compact" class="column-view column-view-compact">
+       		</div>
+
+       	</div>
+    </div>
+
 </div>
 
 
@@ -302,6 +313,74 @@ $(document).ready(function(){
 	});
 
     $columnview.columnview('fillColumn', 0, GetMenu());
+
+
+
+    var $columnview_compact = $('#compact').columnview({
+		createOnTheFly: true,
+
+		columns: [
+			'Vocabulary', '1st Level', '2nd Level'
+		],
+
+		onItemClicked: function(item, col, e){
+			//$.getJSON('http://localhost/id', function(data){
+			//    fill the columns
+			//});
+
+			var o = [], m = GetMenu($(item).data('id'));
+
+			for (var i=0; i<m.length; i++) {
+				o.push( m[i].title + '(' + m[i].id + ')');
+			}
+
+			this.fillColumn(col+1, m);
+		},
+
+        onCreateItem: function(name, col, e) {
+            alert('Column: ' + col + ', Name: ' + name);
+
+			var parent = 0;
+
+			if (col-1 >= 0) {
+				for (var i=0; i<this.selection.length; i++) {
+					var data = this.selection[i].data();
+
+					if (data.col == col-1) {
+						parent = data.id;
+					}
+				}
+			}
+
+			this.appendItem(col, [ CreateItem(name, parent) ]);
+
+        },
+
+        onRemoveItem: function(col, e) {
+			var i, selection = this.getSelection(col);
+
+			if (!selection.length) {
+				return false;
+			}
+
+			var toRemove = confirm('Do you really want to remove selected ' + selection.length +  ' items?');
+
+			if (!toRemove) {
+				return false;
+			}
+
+			for (i=0; i<selection.length; i++) {
+				var data = selection[i].data();
+				RemoveItem(data.id);
+				selection[i].remove();
+			}
+
+			return true; // Return true if you already removed selected item(s)
+        }
+	});
+
+    $columnview_compact.columnview('fillColumn', 0, GetMenu());
+
 });
 
 
