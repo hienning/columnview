@@ -112,8 +112,6 @@
                 for (i=$(this).index(); i<$items.length; i++) {
                     $($items[i]).remove();
                 }
-
-                console.debug(_this.selection);
             });
 		},
 
