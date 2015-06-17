@@ -37,23 +37,23 @@
 			this.options.url = options.url + '/';
 
 			if (this.compacted) {
-                this.container.append(
-                    '<div class="path"><ul></ul></div>'
-                );
+				this.container.append(
+					'<div class="path"><ul></ul></div>'
+				);
 			}
 
-            this.container
-                .append('<div class="columns"><ul></ul></div>');
+			this.container
+				.append('<div class="columns"><ul></ul></div>');
 
 			var i, _this = this;
 
-            if (options.columns.length) {
-                for (i=0; i<options.columns.length; i++) {
-                    this.addColumn(options.columns[i]);
-                }
+			if (options.columns.length) {
+				for (i=0; i<options.columns.length; i++) {
+					this.addColumn(options.columns[i]);
+				}
 
-                this.columns[0].addClass('active');
-            }
+				this.columns[0].addClass('active');
+			}
 
 			this.container.find('.columns')
 				.on('click', 'header .remove', function(e){
@@ -101,18 +101,18 @@
 				});
 
 
-            this.container.children('.path').on('click', 'li', function(e){
-                var index = $(this).index(),
-                    $items = $(this).parent().children();
+				this.container.children('.path').on('click', 'li', function(e){
+				var index = $(this).index(),
+				    $items = $(this).parent().children();
 
-                _this.container.find('.active').removeClass('active');
-                _this.columns[index].addClass('active');
-                _this._clearRightSide(index);
+				_this.container.find('.active').removeClass('active');
+				_this.columns[index].addClass('active');
+				_this._clearRightSide(index);
 
-                for (i=$(this).index(); i<$items.length; i++) {
-                    $($items[i]).remove();
-                }
-            });
+				for (i=$(this).index(); i<$items.length; i++) {
+				    $($items[i]).remove();
+				}
+			});
 		},
 
 
@@ -204,8 +204,8 @@
 		addColumn: function(caption) {
 			var $column = $(
 				'<li class="column"><header>'
-                + (this.compacted ? '<i class="fa fa-chevron-down"></i> ' : '')
-                + caption + '<span class="opt">'
+				+ (this.compacted ? '<i class="fa fa-chevron-down"></i> ' : '')
+				+ caption + '<span class="opt">'
 				+ '<a class="btn btn-xs remove"><i class="fa fa-remove"></i> <span class="caption">'
 				+ this.options.lang['btn-remove'].replace('{0}', '')
 				+ '</span></a></span></header>'
@@ -497,15 +497,14 @@
 				this.columns[col+1].addClass('filled');
 			}
 
-            if (this.compacted &&  col+1 < this.columns.length) {
-                this.columns[col+1].addClass('active');
+			if (this.compacted &&  col+1 < this.columns.length) {
+				this.columns[col+1].addClass('active');
+				this.columns[col].removeClass('active');
 
-                this.columns[col].removeClass('active');
-
-                $('<li><i class="fa fa-chevron-right"></i> ' + $item.children('.caption').text() + '</li>')
-                    .appendTo(this.container.find('.path > ul'))
-                    .data('item', $item);
-            }
+				$('<li><i class="fa fa-chevron-right"></i> ' + $item.children('.caption').text() + '</li>')
+					.appendTo(this.container.find('.path > ul'))
+					.data('item', $item);
+			}
 
 			this.options.onItemClicked.call(this, item, col, e);
 		}

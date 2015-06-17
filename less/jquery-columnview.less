@@ -1,5 +1,6 @@
 @import "bootstrap/variables.less";
 @import "bootstrap/mixins.less";
+@import "bootstrap/theme.less";
 
 
 // A color "borrowed" from AdminLTE
@@ -20,7 +21,7 @@
 
 	.column {
 		display: table-cell;
-		border: 1px solid #ccc;
+		border: 1px solid @input-border;
 		border-collapse: collapse;
 		position: relative;
 
@@ -33,7 +34,7 @@
 		font-weight: bold;
 		padding: 0.5em;
 		background-color: #f2f2f2;
-		border-bottom: 2px solid #ccc;
+		border-bottom: 2px solid @input-border;
 
 		.opt {
 			float: right;
@@ -49,7 +50,7 @@
 		left: 0;
 		bottom: 0;
 		width: 100%;
-		border-top: 1px solid #ccc;
+		border-top: 1px solid @input-border;
 
 		.form-add {
 			overflow: hidden;
@@ -175,10 +176,10 @@
 		li {
 			border-width: 1px 1px 0 1px;
 			border-style: solid;
-			border-color: #ccc;
+			border-color: @input-border;
 			font-weight: bold;
 			padding: 0.5em;
-			background-color: #e2e2e2;
+			background-color: darken(@btn-default-bg, 12%);
 
 			&:hover {
 				color: darken(@light-blue , 6%)!important
@@ -199,7 +200,7 @@
 
 	.columns {
 		display: block;
-		border: 1px solid darken(@light-blue , 6%)!important;
+		border: 1px solid @input-border;
 	}
 
 	.column {
