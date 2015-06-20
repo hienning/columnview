@@ -21,6 +21,7 @@
 		this.container = $(selector);
 		this.columns = [];
 		this.compacted = this.container.hasClass('column-view-compact');
+		this.itemMaps = [];
 
 		this._init(options);
 	}
@@ -190,6 +191,65 @@
 		},
 
 
+		/**
+		 *
+		 * @param $item
+		 * @param col
+		 * @returns {boolean}
+		 * @private
+		 */
+		_appendSelection: function($item, col) {
+			var i;
+
+			if ($item.hasClass(this.options.checkedClass)) {
+				// Uncheck the item
+
+				if (this.selection.length <= 1) {
+					return false;
+				}
+
+				// Traverse the selection and select an item that next to the current one
+				for (i=0; i<this.selection.length; i++) {
+					if (this.selection[i].data().obj !== $item.data().obj) {
+						$item.removeClass(this.options.activeClass);
+						this.selection[i].addClass(this.options.activeClass);
+						break;
+					}
+				}
+
+				$item.removeClass(this.options.checkedClass);
+
+				// Remove current item from the selection
+				for (i=this.selection.length-1; i>=0; i--) {
+					if ($item.data().obj === this.selection[i].data().obj) {
+						this.selection.splice(i, 1);
+						break;
+					}
+				}
+
+				var selection_in_col = this.columns[col].data('selection');
+
+				for (i=selection_in_col.length-1; i>=0; i--) {
+					if ($item.data().obj === selection_in_col[i].data().obj) {
+						selection_in_col.splice(i, 1);
+						break;
+					}
+				}
+
+				this.columns[col].data('selection', selection_in_col);
+			} else {
+				// Check the item
+				$item.addClass(this.options.checkedClass);
+				this._pushSelection($item, col);
+			}
+
+
+			this._hideCreationForm(col+1);
+			this._clearRightSide(col);
+			this._setRemoveCount(col);
+		},
+
+
 
 		/*--------------------------------------------------------+
 		|  Public Methods                                         |
@@ -245,7 +305,7 @@
 		/**
 		 * Append item to a given column.
 		 *
-		 * @param col		The column to be filled.
+		 * @param col     The column to be filled.
 		 * @param data    A array of item(s) to be filled, in following format:
 		 *                [
 		 *                    { id: '1',   title: 'Item 1', expandable: true },
@@ -272,6 +332,8 @@
 					+ '<i class="fa fa-square-o"></i><i class="fa fa-check-square-o"></i>&nbsp;'
 					+ '</div><i class="fa fa-chevron-right"></i></li>'
 				);
+
+				this.itemMaps[data[i].id] = $item;
 
 				$item.appendTo(src).data({
 					col: col,
@@ -392,6 +454,84 @@
 
 
 
+		/**
+		 * Extend the selection by adding a given item.
+		 *
+		 * Notice: this method won't trigger any event.
+		 *
+		 * @param id
+		 * @param col
+		 */
+		appendSelection: function(id, col) {
+			if (!this.itemMaps.hasOwnProperty(id)) {
+				return;
+			}
+
+			this._appendSelection(this.itemMaps[id], col);
+		},
+
+
+
+		/**
+		 * Clear the current selection and select by given id(s).
+		 *
+		 * Notice: this method won't trigger any event.
+		 *
+		 * @param id	int|string|object|jQuery
+		 * @param col   int
+		 */
+		setSelection: function(id, col) {
+			var i;
+
+			this.clearSelection(col);
+
+			if ('object' === typeof id && !(id instanceof jQuery)) {
+
+				for (i in id) {
+					this.appendSelection(id[i], col);
+				}
+
+			} else {
+				var $item;
+
+				if ('number' === typeof id || 'string' === typeof id) {
+					$item = this.itemMaps[id];
+				} else {
+					$item = id;
+				}
+
+				$item.parent().find('li.active').removeClass(this.options.activeClass).end().end()
+			 				 .addClass('checked active');
+
+				this._pushSelection($item, col);
+				this._setRemoveCount(col);
+
+				if (this.options.createOnTheFly
+					&& col === this.columns.length-1
+					)
+				{
+					this.addColumn('New level');
+				}
+
+				this._hideCreationForm(col+2);
+
+				if (col+1 < this.columns.length) {
+					this.columns[col+1].addClass('filled');
+				}
+
+				if (this.compacted &&  col+1 < this.columns.length) {
+					this.columns[col+1].addClass('active');
+					this.columns[col].removeClass('active');
+
+					$('<li><i class="fa fa-chevron-right"></i> ' + $item.children('.caption').text() + '</li>')
+						.appendTo(this.container.find('.path > ul'))
+						.data('item', $item);
+				}
+			}
+		},
+
+
+
 		/*--------------------------------------------------------+
 		|  Event handlers                                         |
 		+--------------------------------------------------------*/
@@ -405,57 +545,12 @@
 		 * @returns {boolean}
 		 */
 		onCheck: function(e, checkIcon) {
-			var i, $item = $(checkIcon).closest('.item');
-			var col = $item.closest('.column').index();
+			var $item = $(checkIcon).closest('.item'),
+			col = $item.closest('.column').index();
 
-			if ($item.hasClass(this.options.checkedClass)) {
-				// Uncheck the item
-
-				if (this.selection.length <= 1) {
-					return false;
-				}
-
-				// Traverse the selection and select an item that next to the current one
-				for (i=0; i<this.selection.length; i++) {
-					if (this.selection[i].data().obj !== $item.data().obj) {
-						$item.removeClass(this.options.activeClass);
-						this.selection[i].addClass(this.options.activeClass);
-						break;
-					}
-				}
-
-				$item.removeClass(this.options.checkedClass);
-
-				// Remove current item from the selection
-				for (i=this.selection.length-1; i>=0; i--) {
-					if ($item.data().obj === this.selection[i].data().obj) {
-						this.selection.splice(i, 1);
-						break;
-					}
-				}
-
-				var selection_in_col = this.columns[col].data('selection');
-
-				for (i=selection_in_col.length-1; i>=0; i--) {
-					if ($item.data().obj === selection_in_col[i].data().obj) {
-						selection_in_col.splice(i, 1);
-						break;
-					}
-				}
-
-				this.columns[col].data('selection', selection_in_col);
-			} else {
-				// Check the item
-				$item.addClass(this.options.checkedClass);
-				this._pushSelection($item, col);
-			}
-
-
-			this._hideCreationForm(col+1);
-			this._clearRightSide(col);
-			this._setRemoveCount(col);
-
+			this._appendSelection($item, col);
 			this.options.onChecked.call(this, $item, col, e);
+
 			return false;
 		},
 
@@ -476,35 +571,7 @@
 
 			var col = $item.closest('.column').index();
 
-			this.clearSelection(col);
-
-			$item.parent().find('li.active').removeClass(this.options.activeClass).end().end()
-				 .addClass('checked active');
-
-			this._pushSelection($item, col);
-			this._setRemoveCount(col);
-
-			if (this.options.createOnTheFly
-				&& col === this.columns.length-1
-				)
-			{
-				this.addColumn('New level');
-			}
-
-			this._hideCreationForm(col+2);
-
-			if (col+1 < this.columns.length) {
-				this.columns[col+1].addClass('filled');
-			}
-
-			if (this.compacted &&  col+1 < this.columns.length) {
-				this.columns[col+1].addClass('active');
-				this.columns[col].removeClass('active');
-
-				$('<li><i class="fa fa-chevron-right"></i> ' + $item.children('.caption').text() + '</li>')
-					.appendTo(this.container.find('.path > ul'))
-					.data('item', $item);
-			}
+			this.setSelection($item, col);
 
 			this.options.onItemClicked.call(this, item, col, e);
 		}
